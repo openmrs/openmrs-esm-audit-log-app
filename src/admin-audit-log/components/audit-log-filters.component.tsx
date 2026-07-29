@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, ComboBox, IconButton, TextInput } from '@carbon/react';
 import { Close } from '@carbon/react/icons';
+import classNames from 'classnames';
 import { OpenmrsDatePicker, useDebounce } from '@openmrs/esm-framework';
 import { ENTITY_TYPES } from '../constants';
 import type { AuditLogFilterState } from '../types';
@@ -73,7 +74,7 @@ const AuditLogFilters: React.FC<AuditLogFiltersProps> = ({ filters, onChange, on
         size="md"
       />
 
-      <div className={`${styles.filterItem} ${styles.fieldWithClear}`}>
+      <div className={classNames(styles.filterItem, styles.fieldWithClear)}>
         <TextInput
           id="audit-username-filter"
           labelText={t('username', 'Username')}
@@ -91,7 +92,7 @@ const AuditLogFilters: React.FC<AuditLogFiltersProps> = ({ filters, onChange, on
         )}
       </div>
 
-      <div className={`${styles.filterItem} ${styles.fieldWithClear}`}>
+      <div className={classNames(styles.filterItem, styles.fieldWithClear)}>
         <OpenmrsDatePicker
           id="audit-start-date"
           labelText={t('startDate', 'Start date')}
@@ -113,7 +114,7 @@ const AuditLogFilters: React.FC<AuditLogFiltersProps> = ({ filters, onChange, on
         )}
       </div>
 
-      <div className={`${styles.filterItem} ${styles.fieldWithClear}`}>
+      <div className={classNames(styles.filterItem, styles.fieldWithClear)}>
         <OpenmrsDatePicker
           id="audit-end-date"
           labelText={t('endDate', 'End date')}

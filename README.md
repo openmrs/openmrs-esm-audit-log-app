@@ -1,6 +1,6 @@
 # OpenMRS ESM Audit Log App
 
-![OpenMRS CI](https://github.com/RajPrakash681/openmrs-esm-audit-log-app/actions/workflows/ci.yml/badge.svg)
+![OpenMRS CI](https://github.com/openmrs/openmrs-esm-audit-log-app/actions/workflows/ci.yml/badge.svg)
 
 A native O3 frontend for the [auditlogweb](https://github.com/openmrs/openmrs-module-auditlogweb) backend module. This microfrontend ships two features from a single module:
 
@@ -14,6 +14,7 @@ Both features integrate purely through `src/routes.json` — the admin card regi
 - `webservices.rest` ≥ 2.2.0
 - [`auditlogweb`](https://github.com/openmrs/openmrs-module-auditlogweb) ≥ 1.1.0-SNAPSHOT, which serves:
   - `GET /ws/rest/v1/auditlogs` (admin dashboard; filters: `entityType`, `username`, `startDate`, `endDate`, `page`, `size`)
+  - `GET /ws/rest/v1/auditlogs/entityTypes` (admin dashboard; populates the entity-type filter)
   - `GET /ws/rest/v1/auditlogs/patients` (patient tab; params: `uuid`, `page`, `size`)
 - Hibernate Envers must be enabled on the server (`hibernate.integration.envers.enabled=true` in the OpenMRS runtime properties), otherwise the endpoints return empty results.
 
@@ -23,7 +24,7 @@ The patient tab is additionally gated behind the `patient-audit-history` feature
 
 | Feature | Privilege |
 |---|---|
-| Admin dashboard | `View Audit Log` |
+| Admin dashboard | `View Audit Logs` |
 | Patient audit history tab | `View Audit Logs` |
 
 Both are configurable via the config schema (`adminAuditLog.viewPrivilege` and `patientAuditHistory.viewPrivilege`).

@@ -22,9 +22,9 @@ vi.mock('react-i18next', () => ({
 }));
 
 vi.mock('@openmrs/esm-framework', () => ({
-  useSession: vi.fn(() => ({ user: { roles: [], privileges: [{ display: 'View Audit Log' }] } })),
+  useSession: vi.fn(() => ({ user: { roles: [], privileges: [{ display: 'View Audit Logs' }] } })),
   userHasAccess: vi.fn(() => true),
-  useConfig: vi.fn(() => ({ adminAuditLog: { viewPrivilege: 'View Audit Log' } })),
+  useConfig: vi.fn(() => ({ adminAuditLog: { viewPrivilege: 'View Audit Logs' } })),
   useLayoutType: vi.fn(() => 'small-desktop'),
   isDesktop: vi.fn(() => true),
   showNotification: vi.fn(),

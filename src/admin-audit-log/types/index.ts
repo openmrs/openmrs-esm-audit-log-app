@@ -25,6 +25,11 @@ export interface AuditLogResponse {
   logs: AuditLogDetail[];
 }
 
+// Simple class names of every @Audited entity the backend knows about.
+export interface AuditEntityTypesResponse {
+  entityTypes: string[];
+}
+
 export interface AuditLogFilterState {
   entityType: string;
   username: string;

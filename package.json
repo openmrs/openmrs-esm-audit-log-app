@@ -31,18 +31,19 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RajPrakash681/openmrs-esm-audit-log-app.git"
+    "url": "git+https://github.com/openmrs/openmrs-esm-audit-log-app.git"
   },
-  "homepage": "https://github.com/RajPrakash681/openmrs-esm-audit-log-app#readme",
+  "homepage": "https://github.com/openmrs/openmrs-esm-audit-log-app#readme",
   "publishConfig": {
     "access": "public"
   },
   "bugs": {
-    "url": "https://github.com/RajPrakash681/openmrs-esm-audit-log-app/issues"
+    "url": "https://github.com/openmrs/openmrs-esm-audit-log-app/issues"
   },
   "dependencies": {
     "@carbon/react": "~1.92.1",
-    "@openmrs/esm-patient-common-lib": "next"
+    "@openmrs/esm-patient-common-lib": "next",
+    "classnames": "^2.5.1"
   },
   "peerDependencies": {
     "@openmrs/esm-framework": "10.x",

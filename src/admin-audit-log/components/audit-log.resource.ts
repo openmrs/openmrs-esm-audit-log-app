@@ -2,32 +2,24 @@ import { useMemo } from 'react';
 import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
 import dayjs from 'dayjs';
 import useSWR from 'swr';
-import { DATE_FILTER_FORMAT, ENTITY_TYPE_SAMPLE_SIZE } from '../constants';
-import type { AuditLogFilterState, AuditLogResponse } from '../types';
+import { DATE_FILTER_FORMAT } from '../constants';
+import type { AuditEntityTypesResponse, AuditLogFilterState, AuditLogResponse } from '../types';
 
 /**
- * Derives the distinct entity types actually present in the audit data, so the
- * entity-type filter can offer every audited type as a searchable option without
- * hardcoding a list. Samples a large unfiltered page and extracts simple class names.
+ * Lists every entity type the backend audits, so the entity-type filter can offer them all as
+ * searchable options without hardcoding a list. The endpoint returns simple class names and is
+ * cheap — auditlogweb resolves the @Audited classes once and caches them for the server's lifetime.
  *
- * Note: coverage is bounded by ENTITY_TYPE_SAMPLE_SIZE — types whose only revisions
- * fall outside the most recent sample won't appear. Adequate for typical volumes.
+ * Only available from auditlogweb 1.1.0. On older backends the request 404s and this returns an
+ * empty list, which leaves the filter showing just the pinned common types.
  */
 export function useAuditEntityTypes() {
-  const url = `${restBaseUrl}/auditlogs?page=0&size=${ENTITY_TYPE_SAMPLE_SIZE}`;
-  const { data, error, isLoading } = useSWR<{ data: AuditLogResponse }, Error>(url, openmrsFetch, {
+  const url = `${restBaseUrl}/auditlogs/entityTypes`;
+  const { data, error, isLoading } = useSWR<{ data: AuditEntityTypesResponse }, Error>(url, openmrsFetch, {
     revalidateOnFocus: false,
-    dedupingInterval: 60000,
   });
 
-  const entityTypes = useMemo(() => {
-    const seen = new Set<string>();
-    for (const log of data?.data?.logs ?? []) {
-      const simpleName = log.entityType?.split('.').pop();
-      if (simpleName) seen.add(simpleName);
-    }
-    return Array.from(seen).sort((a, b) => a.localeCompare(b));
-  }, [data]);
+  const entityTypes = useMemo(() => [...(data?.data?.entityTypes ?? [])].sort((a, b) => a.localeCompare(b)), [data]);
 
   return { entityTypes, isLoading, error };
 }
