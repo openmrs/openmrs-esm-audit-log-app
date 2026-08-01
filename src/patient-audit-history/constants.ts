@@ -1,10 +1,8 @@
-import type { AuditFieldDiff, PatientAuditLog } from './types';
+import type { AuditFieldDiff } from './types';
 
 export const PRIVILEGE_VIEW_AUDIT_LOG = 'View Audit Logs';
 
 export const DEFAULT_PAGE_SIZE = 10;
-
-export const BACKEND_DATETIME_FORMAT = 'DD/MM/YYYY HH:mm:ss';
 
 export const TECHNICAL_FIELDS = new Set<string>([
   'dateCreated',
@@ -35,8 +33,4 @@ export function getVisibleChanges(changes: AuditFieldDiff[] = []): AuditFieldDif
 
 export function isFullSnapshot(visibleChanges: AuditFieldDiff[]): boolean {
   return visibleChanges.length > 0 && visibleChanges.every((change) => change.oldValue === '');
-}
-
-export function countRevisionChanges(log: PatientAuditLog): number {
-  return getVisibleChanges(log.changes ?? []).length + (log.relatedEntities?.length ?? 0);
 }

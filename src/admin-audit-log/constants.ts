@@ -2,8 +2,6 @@ export const basePath = '/audit-logs';
 // Must match the privilege auditlogweb registers in its config.xml — plural.
 export const PRIVILEGE_VIEW_AUDIT_LOG = 'View Audit Logs';
 
-// Zero-based to match the auditlogweb backend
-export const DEFAULT_PAGE_NUMBER = 0;
 export const DEFAULT_PAGE_SIZE = 20;
 export const DEFAULT_PAGE_SIZES = [10, 20, 50];
 

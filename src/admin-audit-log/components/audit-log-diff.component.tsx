@@ -7,6 +7,7 @@ import {
   StructuredListRow,
   StructuredListWrapper,
 } from '@carbon/react';
+import { formatDisplayValue, humanizeFieldName } from '../../shared/audit-log-format';
 import type { AuditFieldDiff } from '../types';
 import styles from './audit-log-diff.scss';
 
@@ -42,12 +43,16 @@ const AuditLogDiff: React.FC<AuditLogDiffProps> = ({ changes }) => {
         <StructuredListBody>
           {visibleChanges.map((change, idx) => (
             <StructuredListRow key={`${change.fieldName}-${idx}`}>
-              <StructuredListCell>{change.fieldName}</StructuredListCell>
+              <StructuredListCell>{humanizeFieldName(change.fieldName)}</StructuredListCell>
               <StructuredListCell>
-                <span className={styles.oldValue}>{change.oldValue !== '' ? change.oldValue : '—'}</span>
+                <span className={styles.oldValue}>
+                  {formatDisplayValue(change.oldValue, change.oldDisplay, change.fieldName, t) || '—'}
+                </span>
               </StructuredListCell>
               <StructuredListCell>
-                <span className={styles.newValue}>{change.currentValue !== '' ? change.currentValue : '—'}</span>
+                <span className={styles.newValue}>
+                  {formatDisplayValue(change.currentValue, change.currentDisplay, change.fieldName, t) || '—'}
+                </span>
               </StructuredListCell>
             </StructuredListRow>
           ))}

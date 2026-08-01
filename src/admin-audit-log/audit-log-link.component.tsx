@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ClickableTile, Layer } from '@carbon/react';
-import { ArrowRight } from '@carbon/react/icons';
+import { ArrowRightIcon } from '@openmrs/esm-framework';
 import { basePath } from './constants';
 
 const AuditLogLink: React.FC = () => {
@@ -14,7 +14,7 @@ const AuditLogLink: React.FC = () => {
           <div className="content">{t('auditLogs', 'Audit Logs')}</div>
         </div>
         <div className="iconWrapper">
-          <ArrowRight size={16} />
+          <ArrowRightIcon size={16} />
         </div>
       </ClickableTile>
     </Layer>

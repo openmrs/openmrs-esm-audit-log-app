@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, ComboBox, IconButton, TextInput } from '@carbon/react';
-import { Close } from '@carbon/react/icons';
 import classNames from 'classnames';
-import { OpenmrsDatePicker, useDebounce } from '@openmrs/esm-framework';
+import { CloseIcon, OpenmrsDatePicker, useDebounce } from '@openmrs/esm-framework';
 import { ENTITY_TYPES } from '../constants';
 import type { AuditLogFilterState } from '../types';
 import { useAuditEntityTypes } from './audit-log.resource';
@@ -54,10 +53,13 @@ const AuditLogFilters: React.FC<AuditLogFiltersProps> = ({ filters, onChange, on
     if (filters.username === '') setUsernameInput('');
   }, [filters.username]);
 
+  // Only propagate a genuine change. Firing on mount would call onChange, which clears the
+  // `page` param, so opening a shared URL like ?entityType=Patient&page=3 would jump to page 1.
   useEffect(() => {
-    onChange({ username: debouncedUsername });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedUsername]);
+    if (debouncedUsername !== filters.username) {
+      onChange({ username: debouncedUsername });
+    }
+  }, [debouncedUsername, filters.username, onChange]);
 
   return (
     <div className={styles.filtersRow}>
@@ -86,7 +88,7 @@ const AuditLogFilters: React.FC<AuditLogFiltersProps> = ({ filters, onChange, on
         {usernameInput && (
           <div className={styles.textClear}>
             <IconButton kind="ghost" size="sm" label={t('clear', 'Clear')} onClick={() => setUsernameInput('')}>
-              <Close />
+              <CloseIcon />
             </IconButton>
           </div>
         )}
@@ -108,7 +110,7 @@ const AuditLogFilters: React.FC<AuditLogFiltersProps> = ({ filters, onChange, on
               label={t('clear', 'Clear')}
               onClick={() => onChange({ startDate: null })}
             >
-              <Close />
+              <CloseIcon />
             </IconButton>
           </div>
         )}
@@ -125,7 +127,7 @@ const AuditLogFilters: React.FC<AuditLogFiltersProps> = ({ filters, onChange, on
         {filters.endDate && (
           <div className={styles.dateClear}>
             <IconButton kind="ghost" size="sm" label={t('clear', 'Clear')} onClick={() => onChange({ endDate: null })}>
-              <Close />
+              <CloseIcon />
             </IconButton>
           </div>
         )}
@@ -133,7 +135,7 @@ const AuditLogFilters: React.FC<AuditLogFiltersProps> = ({ filters, onChange, on
 
       {hasActiveFilters && onClearAll && (
         <div className={styles.clearAllItem}>
-          <Button kind="ghost" size="md" renderIcon={Close} onClick={onClearAll}>
+          <Button kind="ghost" size="md" renderIcon={CloseIcon} onClick={onClearAll}>
             {t('clearFilters', 'Clear filters')}
           </Button>
         </div>

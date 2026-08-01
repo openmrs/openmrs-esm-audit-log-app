@@ -1,8 +1,9 @@
-import { type DashboardLinkConfig } from '@openmrs/esm-patient-common-lib';
+import { type DashboardExtensionProps } from '@openmrs/esm-framework';
 
-export const dashboardMeta: DashboardLinkConfig & { slot: string } = {
+export const dashboardMeta: Omit<DashboardExtensionProps, 'basePath'> & { slot: string } = {
   slot: 'patient-chart-audit-history-dashboard-slot',
   path: 'audit-history',
   title: 'Audit History',
-  icon: 'omrs-icon-report',
+  // A clock reads as "chronological history"; omrs-icon-report is already the Patient Summary icon.
+  icon: 'omrs-icon-time',
 };

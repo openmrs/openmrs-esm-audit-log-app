@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AuditFieldDiff } from '../types';
 import { getVisibleChanges, isFullSnapshot } from '../constants';
-import { formatDisplayValue, humanizeFieldName } from './audit-log-format';
+import { formatDisplayValue, humanizeFieldName } from '../../shared/audit-log-format';
 import styles from './audit-log-diff.scss';
 
 interface AuditLogDiffProps {
@@ -36,7 +36,7 @@ const AuditLogDiff: React.FC<AuditLogDiffProps> = ({ changes, eventType }) => {
             : t('baselineRecorded', 'Baseline recorded — no prior revision to compare')}
         </p>
         <p className={styles.noChanges}>
-          {t('fieldsSetCount', '{{count}} fields set', { count: visibleChanges.length })}
+          {t('fieldsSetCount', '{{count}} field set', { count: visibleChanges.length })}
         </p>
         <details className={styles.snapshotDetails}>
           <summary>{t('showInitialValues', 'Show initial values')}</summary>
@@ -46,7 +46,7 @@ const AuditLogDiff: React.FC<AuditLogDiffProps> = ({ changes, eventType }) => {
                 <div className={styles.fieldCell}>{humanizeFieldName(change.fieldName)}</div>
                 <div className={styles.valueCell}>
                   <span className={styles.newValue}>
-                    {formatDisplayValue(change.currentValue, change.currentDisplay, change.fieldName) || '—'}
+                    {formatDisplayValue(change.currentValue, change.currentDisplay, change.fieldName, t) || '—'}
                   </span>
                 </div>
               </Fragment>
@@ -79,12 +79,12 @@ const AuditLogDiff: React.FC<AuditLogDiffProps> = ({ changes, eventType }) => {
             </div>
             <div className={styles.valueCell} role="cell">
               <span className={styles.oldValue}>
-                {formatDisplayValue(change.oldValue, change.oldDisplay, change.fieldName) || '—'}
+                {formatDisplayValue(change.oldValue, change.oldDisplay, change.fieldName, t) || '—'}
               </span>
             </div>
             <div className={styles.valueCell} role="cell">
               <span className={styles.newValue}>
-                {formatDisplayValue(change.currentValue, change.currentDisplay, change.fieldName) || '—'}
+                {formatDisplayValue(change.currentValue, change.currentDisplay, change.fieldName, t) || '—'}
               </span>
             </div>
           </div>

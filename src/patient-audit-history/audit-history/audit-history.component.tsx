@@ -18,20 +18,22 @@ import {
   Tile,
 } from '@carbon/react';
 import {
-  type FetchError,
+  CardHeader,
+  EmptyCard,
+  ErrorState,
   isDesktop,
+  Pagination,
   useConfig,
   useLayoutType,
   useSession,
   userHasAccess,
 } from '@openmrs/esm-framework';
-import { CardHeader, EmptyState, ErrorState, PatientChartPagination } from '@openmrs/esm-patient-common-lib';
 import { type ConfigObject } from '../../config-schema';
 import { DEFAULT_PAGE_SIZE, getVisibleChanges, isFullSnapshot } from '../constants';
 import { usePatientAuditHistory } from './audit-history.resource';
 import AuditLogDiff from './audit-log-diff.component';
 import AuditLogEventTag from './audit-log-event-tag.component';
-import { formatRevisionDatetime } from './audit-log-format';
+import { formatRevisionDatetime, humanizeEntityName } from '../../shared/audit-log-format';
 import styles from './audit-history.scss';
 
 interface AuditHistoryProps {
@@ -53,7 +55,7 @@ const AuditHistory: React.FC<AuditHistoryProps> = ({ patientUuid, patient }) => 
 
   const [page, setPage] = useState(1);
 
-  const { logs, totalLogs, isLoading, isValidating, error, mutate } = usePatientAuditHistory(
+  const { logs, totalLogs, isLoading, isValidating, error } = usePatientAuditHistory(
     hasAccess ? resolvedPatientUuid : '',
     page - 1,
     pageSize,
@@ -108,7 +110,7 @@ const AuditHistory: React.FC<AuditHistoryProps> = ({ patientUuid, patient }) => 
   }
 
   if (error) {
-    if ((error as unknown as FetchError)?.response?.status === 404) {
+    if (error?.response?.status === 404) {
       return (
         <Layer>
           <Tile className={styles.messageTile}>
@@ -126,7 +128,7 @@ const AuditHistory: React.FC<AuditHistoryProps> = ({ patientUuid, patient }) => 
   }
 
   if (logs.length === 0) {
-    return <EmptyState displayText={t('auditRecords', 'audit records')} headerTitle={headerTitle} />;
+    return <EmptyCard displayText={t('auditRecords', 'audit records')} headerTitle={headerTitle} />;
   }
 
   return (
@@ -180,7 +182,9 @@ const AuditHistory: React.FC<AuditHistoryProps> = ({ patientUuid, patient }) => 
                                     className={styles.relatedItem}
                                   >
                                     <AuditLogEventTag eventType={related.revisionType} />
-                                    <span className={styles.relatedName}>{related.simpleName}</span>
+                                    <span className={styles.relatedName}>
+                                      {humanizeEntityName(related.simpleName, t)}
+                                    </span>
                                   </span>
                                 ))}
                               </div>
@@ -196,7 +200,7 @@ const AuditHistory: React.FC<AuditHistoryProps> = ({ patientUuid, patient }) => 
           </TableContainer>
         )}
       </DataTable>
-      <PatientChartPagination
+      <Pagination
         pageNumber={page}
         totalItems={totalLogs}
         currentItems={logs.length}

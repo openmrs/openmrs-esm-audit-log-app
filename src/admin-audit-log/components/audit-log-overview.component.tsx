@@ -24,8 +24,10 @@ import {
   Tile,
 } from '@carbon/react';
 import {
+  formatDatetime,
   isDesktop,
-  type FetchError,
+  PageHeader,
+  PageHeaderContent,
   useConfig,
   useLayoutType,
   useSession,
@@ -52,9 +54,11 @@ function setOrDelete(params: URLSearchParams, key: string, value?: string | null
   }
 }
 
+// Render through the framework formatter so this table and the patient tab show the same
+// revision the same way. DATE_DISPLAY_FORMAT stays for parsing the backend's dd/MM/yyyy string.
 function formatChangedOn(value: string): string {
   const parsed = dayjs.utc(value, DATE_DISPLAY_FORMAT, true);
-  return parsed.isValid() ? parsed.local().format(DATE_DISPLAY_FORMAT) : value;
+  return parsed.isValid() ? formatDatetime(parsed.toDate()) : value;
 }
 
 const AuditLogOverview: React.FC = () => {
@@ -79,7 +83,10 @@ const AuditLogOverview: React.FC = () => {
 
   // Carbon Pagination is 1-based; backend is 0-based.
   const uiPage = Number(searchParams.get('page')) || 1;
-  const pageSize = Number(searchParams.get('size')) || DEFAULT_PAGE_SIZE;
+  // Clamp to the offered sizes: Carbon's Pagination can't represent a size outside its
+  // pageSizes list, and would report the wrong page count while rows go unreachable.
+  const requestedSize = Number(searchParams.get('size'));
+  const pageSize = DEFAULT_PAGE_SIZES.includes(requestedSize) ? requestedSize : DEFAULT_PAGE_SIZE;
   const backendPage = uiPage - 1;
 
   const { logs, totalLogs, isLoading, isValidating, error, mutate } = useAuditLogs(filters, backendPage, pageSize);
@@ -169,10 +176,12 @@ const AuditLogOverview: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <h3 className={styles.title}>{t('auditLogs', 'Audit Logs')}</h3>
-        <p className={styles.subtitle}>{t('trackAllChanges', 'Track all changes made across the system')}</p>
-      </header>
+      {/* No audit-themed pictogram exists in the styleguide set yet, so the header renders
+          without one until one is added. */}
+      <PageHeader className={styles.header}>
+        <PageHeaderContent title={t('auditLogs', 'Audit Logs')} illustration={<></>} />
+      </PageHeader>
+      <p className={styles.subtitle}>{t('trackAllChanges', 'Track all changes made across the system')}</p>
 
       <AuditLogFilters
         filters={filters}
@@ -188,7 +197,7 @@ const AuditLogOverview: React.FC = () => {
             lowContrast
             title={t('errorLoadingLogs', 'Error loading audit logs')}
             subtitle={
-              (error as unknown as FetchError)?.response?.status === 404
+              error?.response?.status === 404
                 ? t('moduleNotInstalled', 'The auditlogweb module is not installed on this server.')
                 : t('tryAgain', 'Please try again.')
             }

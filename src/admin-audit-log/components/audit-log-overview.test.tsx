@@ -2,7 +2,7 @@ import React from 'react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { userHasAccess } from '@openmrs/esm-framework';
+import { formatDatetime, useConfig, userHasAccess } from '@openmrs/esm-framework';
 import AuditLogOverview from './audit-log-overview.component';
 import * as resource from './audit-log.resource';
 
@@ -16,28 +16,6 @@ const renderWithActiveFilter = () =>
       <AuditLogOverview />
     </MemoryRouter>,
   );
-
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string, fallback: string) => fallback }),
-}));
-
-vi.mock('@openmrs/esm-framework', () => ({
-  useSession: vi.fn(() => ({ user: { roles: [], privileges: [{ display: 'View Audit Logs' }] } })),
-  userHasAccess: vi.fn(() => true),
-  useConfig: vi.fn(() => ({ adminAuditLog: { viewPrivilege: 'View Audit Logs' } })),
-  useLayoutType: vi.fn(() => 'small-desktop'),
-  isDesktop: vi.fn(() => true),
-  showNotification: vi.fn(),
-  OpenmrsDatePicker: ({ labelText, onChange }: any) => (
-    <div>
-      <label>{labelText}</label>
-      <input aria-label={labelText} onChange={(e) => onChange(e.target.value ? new Date(e.target.value) : null)} />
-    </div>
-  ),
-  useDebounce: (val: string) => val,
-  restBaseUrl: '/ws/rest/v1',
-  openmrsFetch: vi.fn(),
-}));
 
 vi.mock('./audit-log.resource');
 const mockUseAuditLogs = vi.mocked(resource.useAuditLogs);
@@ -67,7 +45,8 @@ const baseReturn = {
 
 describe('AuditLogOverview', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.mocked(useConfig).mockReturnValue({ adminAuditLog: { viewPrivilege: 'View Audit Logs' } });
+    vi.mocked(userHasAccess).mockReturnValue(true);
     mockUseAuditLogs.mockReturnValue(baseReturn);
     vi.mocked(resource.useAuditEntityTypes).mockReturnValue({ entityTypes: [], isLoading: false, error: undefined });
   });
@@ -81,7 +60,8 @@ describe('AuditLogOverview', () => {
     renderWithActiveFilter();
     expect(screen.getByText('Patient')).toBeInTheDocument();
     expect(screen.getByText('admin')).toBeInTheDocument();
-    expect(screen.getByText('15/03/2026 10:00:00')).toBeInTheDocument();
+    // Timestamps render through the framework formatter, matching the patient tab.
+    expect(screen.getByText(formatDatetime(new Date(Date.UTC(2026, 2, 15, 10, 0, 0))))).toBeInTheDocument();
   });
 
   it('renders loading skeleton when isLoading is true', () => {
@@ -133,7 +113,8 @@ describe('AuditLogOverview', () => {
     const expandButtons = screen.getAllByRole('button', { name: /expand/i });
     fireEvent.click(expandButtons[0]);
     await waitFor(() => {
-      expect(screen.getByText('givenName')).toBeInTheDocument();
+      // Field names render humanized, matching the patient-side diff.
+      expect(screen.getByText('Given name')).toBeInTheDocument();
     });
     expect(screen.getByText('John')).toBeInTheDocument();
     expect(screen.getByText('Johnny')).toBeInTheDocument();

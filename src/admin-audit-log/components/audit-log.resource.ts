@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
-import { openmrsFetch, restBaseUrl } from '@openmrs/esm-framework';
+import { type FetchError, restBaseUrl, useOpenmrsSWR } from '@openmrs/esm-framework';
 import dayjs from 'dayjs';
-import useSWR from 'swr';
 import { DATE_FILTER_FORMAT } from '../constants';
 import type { AuditEntityTypesResponse, AuditLogFilterState, AuditLogResponse } from '../types';
 
@@ -15,13 +14,13 @@ import type { AuditEntityTypesResponse, AuditLogFilterState, AuditLogResponse } 
  */
 export function useAuditEntityTypes() {
   const url = `${restBaseUrl}/auditlogs/entityTypes`;
-  const { data, error, isLoading } = useSWR<{ data: AuditEntityTypesResponse }, Error>(url, openmrsFetch, {
-    revalidateOnFocus: false,
+  const { data, error, isLoading } = useOpenmrsSWR<AuditEntityTypesResponse, FetchError>(url, {
+    swrConfig: { revalidateOnFocus: false },
   });
 
   const entityTypes = useMemo(() => [...(data?.data?.entityTypes ?? [])].sort((a, b) => a.localeCompare(b)), [data]);
 
-  return { entityTypes, isLoading, error };
+  return useMemo(() => ({ entityTypes, isLoading, error }), [entityTypes, isLoading, error]);
 }
 
 export function useAuditLogs(filters: AuditLogFilterState, page: number, size: number) {
@@ -46,24 +45,22 @@ export function useAuditLogs(filters: AuditLogFilterState, page: number, size: n
 
   const url = hasActiveFilter ? `${restBaseUrl}/auditlogs?${params.toString()}` : null;
 
-  const { data, error, isLoading, isValidating, mutate } = useSWR<{ data: AuditLogResponse }, Error>(
-    url,
-    openmrsFetch,
-    {
-      revalidateOnFocus: true,
-      dedupingInterval: 2000,
-    },
-  );
+  const { data, error, isLoading, isValidating, mutate } = useOpenmrsSWR<AuditLogResponse, FetchError>(url, {
+    swrConfig: { revalidateOnFocus: true, dedupingInterval: 2000 },
+  });
 
-  return {
-    logs: data?.data?.logs ?? [],
-    totalLogs: data?.data?.totalLogs ?? 0,
-    totalPages: data?.data?.totalPages ?? 0,
-    currentPage: data?.data?.currentPage ?? 0,
-    isLoading,
-    isValidating,
-    error,
-    mutate,
-    hasActiveFilter,
-  };
+  return useMemo(
+    () => ({
+      logs: data?.data?.logs ?? [],
+      totalLogs: data?.data?.totalLogs ?? 0,
+      totalPages: data?.data?.totalPages ?? 0,
+      currentPage: data?.data?.currentPage ?? 0,
+      isLoading,
+      isValidating,
+      error,
+      mutate,
+      hasActiveFilter,
+    }),
+    [data, isLoading, isValidating, error, mutate, hasActiveFilter],
+  );
 }

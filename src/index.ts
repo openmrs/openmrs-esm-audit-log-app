@@ -1,5 +1,10 @@
-import { defineConfigSchema, getAsyncLifecycle, getSyncLifecycle, registerBreadcrumbs } from '@openmrs/esm-framework';
-import { createDashboardLink } from '@openmrs/esm-patient-common-lib';
+import {
+  createDashboard,
+  defineConfigSchema,
+  getAsyncLifecycle,
+  getSyncLifecycle,
+  registerBreadcrumbs,
+} from '@openmrs/esm-framework';
 import { getFixedT } from 'i18next';
 import { moduleName } from './constants';
 import { configSchema } from './config-schema';
@@ -43,4 +48,4 @@ export const auditLogLink = getAsyncLifecycle(() => import('./admin-audit-log/au
 export const auditHistoryDashboard = getSyncLifecycle(auditHistoryComponent, patientOptions);
 
 // t('Audit History', 'Audit History')
-export const auditHistoryDashboardLink = getSyncLifecycle(createDashboardLink({ ...dashboardMeta }), patientOptions);
+export const auditHistoryDashboardLink = getSyncLifecycle(createDashboard({ ...dashboardMeta }), patientOptions);

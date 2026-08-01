@@ -29,6 +29,18 @@
   width: 100%;
 }
 
+// At phone widths five columns cannot fit, and Carbon crushes them into unreadable
+// slivers. Scroll the table horizontally instead so every column stays legible.
+@media (max-width: 42rem) {
+  .tableContainer :global(.cds--data-table-content) {
+    overflow-x: auto;
+  }
+
+  .table {
+    min-width: 40rem;
+  }
+}
+
 .tableToolbar {
   display: flex;
   align-items: center;

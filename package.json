@@ -42,7 +42,6 @@
   },
   "dependencies": {
     "@carbon/react": "~1.92.1",
-    "@openmrs/esm-patient-common-lib": "next",
     "classnames": "^2.5.1"
   },
   "peerDependencies": {

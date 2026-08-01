@@ -5,6 +5,10 @@ export interface AuditFieldDiff {
   oldValue: string;
   currentValue: string;
   changed: boolean;
+  // Backend-resolved human-readable names for references (concepts, users, locations);
+  // the raw values arrive as e.g. `Concept#88`.
+  oldDisplay?: string | null;
+  currentDisplay?: string | null;
 }
 
 export interface AuditLogDetail {

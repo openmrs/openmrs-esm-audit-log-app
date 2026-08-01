@@ -1,4 +1,4 @@
-import { Type } from '@openmrs/esm-framework';
+import { Type, validator } from '@openmrs/esm-framework';
 import { PRIVILEGE_VIEW_AUDIT_LOG as ADMIN_PRIVILEGE_VIEW_AUDIT_LOG } from './admin-audit-log/constants';
 import {
   DEFAULT_PAGE_SIZE,
@@ -25,6 +25,14 @@ export const configSchema = {
       _type: Type.Number,
       _description: 'The number of audit history revisions to show per page.',
       _default: DEFAULT_PAGE_SIZE,
+      // A non-positive value is silently replaced by the backend but still used by the
+      // pagination control, leaving the table and the controls disagreeing.
+      _validators: [
+        validator(
+          (value: unknown) => typeof value === 'number' && Number.isInteger(value) && value > 0,
+          'Must be a positive integer',
+        ),
+      ],
     },
   },
 };

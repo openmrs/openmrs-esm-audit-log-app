@@ -1,6 +1,7 @@
 name: OpenMRS CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
   pull_request:
@@ -9,46 +10,18 @@ on:
     types:
       - created
 
-env:
-  ESM_NAME: "@openmrs/esm-audit-log-app"
-  JS_NAME: "openmrs-esm-audit-log-app.js"
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v6
-      - name: Use Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 20
-      - run: yarn install --immutable
-      - run: yarn verify
-      - run: yarn build
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: dist
-          path: |
-            dist
+    uses: openmrs/openmrs-contrib-gha-workflows/.github/workflows/build-frontend-module.yml@main
 
   release:
-    runs-on: ubuntu-latest
-
+    if: github.event_name != 'workflow_dispatch'
     needs: build
-
-    if: ${{ github.event_name == 'release' }}
-
-    steps:
-      - uses: actions/checkout@v6
-      - name: Use Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 20
-          registry-url: 'https://registry.npmjs.org'
-      - run: yarn install --immutable
-      - run: yarn build
-      - run: yarn config set npmAuthToken "${NODE_AUTH_TOKEN}" && yarn npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+    uses: openmrs/openmrs-contrib-gha-workflows/.github/workflows/release-frontend-module.yml@main
+    secrets:
+      NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      BOT_PAT: ${{ secrets.OMRS_BOT_GH_TOKEN }}

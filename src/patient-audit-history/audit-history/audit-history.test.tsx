@@ -2,10 +2,11 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
-import { useConfig, useSession, userHasAccess } from '@openmrs/esm-framework';
+import { type FetchError, useConfig, useSession, userHasAccess } from '@openmrs/esm-framework';
 import { usePatientAuditHistory } from './audit-history.resource';
 import AuditHistory from './audit-history.component';
-import { formatRevisionDatetime } from './audit-log-format';
+import { formatRevisionDatetime } from '../../shared/audit-log-format';
+import type { PatientAuditLog } from '../types';
 
 vi.mock('./audit-history.resource');
 
@@ -14,7 +15,7 @@ const mockUseConfig = useConfig as Mock;
 const mockUseSession = useSession as Mock;
 const mockUserHasAccess = userHasAccess as Mock;
 
-const baseReturn = {
+const baseReturn: ReturnType<typeof usePatientAuditHistory> = {
   logs: [],
   totalLogs: 0,
   totalPages: 0,
@@ -25,7 +26,7 @@ const baseReturn = {
   mutate: vi.fn(),
 };
 
-const mockLogs = [
+const mockLogs: PatientAuditLog[] = [
   {
     revisionID: 12,
     entityType: 'Patient',
@@ -55,14 +56,16 @@ const mockLogs = [
 ];
 
 beforeEach(() => {
-  mockUseConfig.mockReturnValue({ patientAuditHistory: { viewPrivilege: 'View Audit Logs', auditHistoryPageSize: 10 } });
+  mockUseConfig.mockReturnValue({
+    patientAuditHistory: { viewPrivilege: 'View Audit Logs', auditHistoryPageSize: 10 },
+  });
   mockUseSession.mockReturnValue({ user: { display: 'admin', roles: [], privileges: [] } });
   mockUserHasAccess.mockReturnValue(true);
 });
 
 describe('AuditHistory', () => {
   it('renders a row per audit revision with the expected columns and event tags', () => {
-    mockUsePatientAuditHistory.mockReturnValue({ ...baseReturn, logs: mockLogs, totalLogs: 2 } as any);
+    mockUsePatientAuditHistory.mockReturnValue({ ...baseReturn, logs: mockLogs, totalLogs: 2 });
 
     render(<AuditHistory patientUuid="abc-123" />);
 
@@ -79,7 +82,7 @@ describe('AuditHistory', () => {
   });
 
   it('shows a loading skeleton while fetching', () => {
-    mockUsePatientAuditHistory.mockReturnValue({ ...baseReturn, isLoading: true } as any);
+    mockUsePatientAuditHistory.mockReturnValue({ ...baseReturn, isLoading: true });
 
     render(<AuditHistory patientUuid="abc-123" />);
 
@@ -87,18 +90,18 @@ describe('AuditHistory', () => {
   });
 
   it('shows the empty state when there are no records', () => {
-    mockUsePatientAuditHistory.mockReturnValue({ ...baseReturn, logs: [], totalLogs: 0 } as any);
+    mockUsePatientAuditHistory.mockReturnValue({ ...baseReturn, logs: [], totalLogs: 0 });
 
     render(<AuditHistory patientUuid="abc-123" />);
 
-    expect(screen.getByTitle(/empty data illustration/i)).toBeInTheDocument();
+    expect(screen.getByText(/there are no audit records to display/i)).toBeInTheDocument();
   });
 
   it('shows a helpful message when the auditlogweb module is not installed (404)', () => {
     mockUsePatientAuditHistory.mockReturnValue({
       ...baseReturn,
-      error: { response: { status: 404 } },
-    } as any);
+      error: { response: { status: 404 } } as FetchError,
+    });
 
     render(<AuditHistory patientUuid="abc-123" />);
 
@@ -108,7 +111,7 @@ describe('AuditHistory', () => {
 
   it('gates the widget on the view privilege', () => {
     mockUserHasAccess.mockReturnValue(false);
-    mockUsePatientAuditHistory.mockReturnValue({ ...baseReturn, logs: mockLogs, totalLogs: 2 } as any);
+    mockUsePatientAuditHistory.mockReturnValue({ ...baseReturn, logs: mockLogs, totalLogs: 2 });
 
     render(<AuditHistory patientUuid="abc-123" />);
 
@@ -118,7 +121,7 @@ describe('AuditHistory', () => {
 
   it('expands a revision to reveal its field-level diff and related entities', async () => {
     const user = userEvent.setup();
-    mockUsePatientAuditHistory.mockReturnValue({ ...baseReturn, logs: mockLogs, totalLogs: 2 } as any);
+    mockUsePatientAuditHistory.mockReturnValue({ ...baseReturn, logs: mockLogs, totalLogs: 2 });
 
     render(<AuditHistory patientUuid="abc-123" />);
 
@@ -127,14 +130,14 @@ describe('AuditHistory', () => {
 
     expect(screen.getByText(/change details/i)).toBeInTheDocument();
     expect(screen.getByText('Gender')).toBeInTheDocument();
-    expect(screen.getByText('F')).toBeInTheDocument();
-    expect(screen.getByText('M')).toBeInTheDocument();
+    expect(screen.getByText('Female')).toBeInTheDocument();
+    expect(screen.getByText('Male')).toBeInTheDocument();
     expect(screen.getByText(/changed in the same save/i)).toBeInTheDocument();
-    expect(screen.getByText('PersonName')).toBeInTheDocument();
+    expect(screen.getByText('Name')).toBeInTheDocument();
   });
 
   it('tags a voided revision distinctly instead of "Updated"', () => {
-    const voidLogs = [
+    const voidLogs: PatientAuditLog[] = [
       {
         revisionID: 20,
         entityType: 'Patient',
@@ -145,7 +148,7 @@ describe('AuditHistory', () => {
         relatedEntities: [],
       },
     ];
-    mockUsePatientAuditHistory.mockReturnValue({ ...baseReturn, logs: voidLogs, totalLogs: 1 } as any);
+    mockUsePatientAuditHistory.mockReturnValue({ ...baseReturn, logs: voidLogs, totalLogs: 1 });
 
     render(<AuditHistory patientUuid="abc-123" />);
 
@@ -155,7 +158,7 @@ describe('AuditHistory', () => {
 
   it('summarizes a Created revision instead of dumping every field', async () => {
     const user = userEvent.setup();
-    const createdLogs = [
+    const createdLogs: PatientAuditLog[] = [
       {
         revisionID: 1,
         entityType: 'Patient',
@@ -170,7 +173,7 @@ describe('AuditHistory', () => {
         relatedEntities: [],
       },
     ];
-    mockUsePatientAuditHistory.mockReturnValue({ ...baseReturn, logs: createdLogs, totalLogs: 1 } as any);
+    mockUsePatientAuditHistory.mockReturnValue({ ...baseReturn, logs: createdLogs, totalLogs: 1 });
 
     render(<AuditHistory patientUuid="abc-123" />);
 
@@ -179,12 +182,14 @@ describe('AuditHistory', () => {
     await user.click(screen.getByLabelText(/expand current row/i));
 
     expect(screen.getByText(/record created/i)).toBeInTheDocument();
-    expect(screen.getByText(/3 fields set/i)).toBeInTheDocument();
+    // The shared i18next stub interpolates the default string without resolving plurals,
+    // so accept either form; i18next picks _one/_other from en.json at runtime.
+    expect(screen.getByText(/3 fields? set/i)).toBeInTheDocument();
     expect(screen.queryByText(/previous value/i)).not.toBeInTheDocument();
   });
 
   it('renders pagination controls when there are records', () => {
-    mockUsePatientAuditHistory.mockReturnValue({ ...baseReturn, logs: mockLogs, totalLogs: 25 } as any);
+    mockUsePatientAuditHistory.mockReturnValue({ ...baseReturn, logs: mockLogs, totalLogs: 25 });
 
     render(<AuditHistory patientUuid="abc-123" />);
 
