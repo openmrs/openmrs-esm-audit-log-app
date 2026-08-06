@@ -48,4 +48,14 @@ export const auditLogLink = getAsyncLifecycle(() => import('./admin-audit-log/au
 export const auditHistoryDashboard = getSyncLifecycle(auditHistoryComponent, patientOptions);
 
 // t('Audit History', 'Audit History')
+// t('entityPersonName', 'Name')
+// t('entityPatientIdentifier', 'Identifier')
+// t('entityPersonAddress', 'Address')
+// t('entityPersonAttribute', 'Attribute')
+// t('genderMale', 'Male')
+// t('genderFemale', 'Female')
+// t('genderOther', 'Other')
+// t('genderUnknown', 'Unknown')
+// t('yes', 'Yes')
+// t('no', 'No')
 export const auditHistoryDashboardLink = getSyncLifecycle(createDashboard({ ...dashboardMeta }), patientOptions);
