@@ -1,0 +1,79 @@
+@use '@carbon/layout';
+
+.filtersRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: layout.$spacing-05;
+  margin-bottom: layout.$spacing-05;
+  align-items: flex-start;
+}
+
+.filterItem {
+  flex: 1 1 14rem;
+  min-width: 12rem;
+  max-width: 16rem;
+}
+
+.filterItem :global(.cds--label) {
+  margin-bottom: layout.$spacing-03;
+  line-height: 1rem;
+}
+
+.filterItem :global(.cds--date-picker),
+.filterItem :global(.cds--date-picker-container) {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+
+// Deliberately no `margin` reset here: the styleguide's date picker uses the wrapper's
+// margin-left as the field's left text inset, so zeroing it clips the leading "dd" segment.
+.filterItem :global(.cds--date-picker-input__wrapper) {
+  width: 100%;
+  max-width: 100%;
+}
+
+.filterItem :global([class*='invalidText']):empty {
+  display: none;
+}
+
+.fieldWithClear {
+  position: relative;
+}
+
+.textClear,
+.dateClear {
+  position: absolute;
+  top: layout.$spacing-06;
+  right: 0;
+  height: layout.$spacing-08;
+  display: flex;
+  align-items: center;
+  z-index: 1;
+}
+
+.dateClear {
+  right: layout.$spacing-08;
+}
+
+.clearAllItem {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  margin-top: layout.$spacing-06;
+}
+
+.clearAllItem :global(.cds--btn) {
+  white-space: nowrap;
+}
+
+// Stack the filters at phone widths; the capped width leaves them awkwardly narrow.
+@media (max-width: 42rem) {
+  .filterItem {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+
+  .clearAllItem {
+    margin-top: 0;
+  }
+}
