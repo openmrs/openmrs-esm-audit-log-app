@@ -1,8 +1,10 @@
 import { renderHook } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
+// eslint-disable-next-line import/no-duplicates -- the namespace type import below cannot be merged into this one
 import { type FetchResponse, useOpenmrsSWR } from '@openmrs/esm-framework';
 import { usePatientAuditHistory } from './audit-history.resource';
 import type { PatientAuditLogResponse } from '../types';
+// eslint-disable-next-line import/no-duplicates -- consistent-type-imports forbids the `typeof import(...)` alternative
 import type * as EsmFramework from '@openmrs/esm-framework';
 
 // Keep the project's shared framework mock; only stub the fetching hook under test.
