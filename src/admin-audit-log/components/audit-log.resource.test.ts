@@ -1,17 +1,14 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
 import dayjs from 'dayjs';
-// eslint-disable-next-line import/no-duplicates -- the namespace type import below cannot be merged into this one
+import { renderHook } from '@testing-library/react';
 import { type FetchResponse, useOpenmrsSWR } from '@openmrs/esm-framework';
 import { useAuditLogs } from './audit-log.resource';
 import { DATE_FILTER_FORMAT } from '../constants';
 import type { AuditLogFilterState, AuditLogResponse } from '../types';
-// eslint-disable-next-line import/no-duplicates -- consistent-type-imports forbids the `typeof import(...)` alternative
-import type * as EsmFramework from '@openmrs/esm-framework';
 
 // Keep the project's shared framework mock; only stub the fetching hook under test.
 vi.mock('@openmrs/esm-framework', async (importOriginal) => ({
-  ...(await importOriginal<typeof EsmFramework>()),
+  ...(await importOriginal()),
   useOpenmrsSWR: vi.fn(),
 }));
 
