@@ -21,7 +21,11 @@ jobs:
   release:
     if: github.event_name != 'workflow_dispatch'
     needs: build
+    permissions:
+      contents: write
+      id-token: write
     uses: openmrs/openmrs-contrib-gha-workflows/.github/workflows/release-frontend-module.yml@main
+    with:
+      publish_environment: npm-publish
     secrets:
-      NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
       BOT_PAT: ${{ secrets.OMRS_BOT_GH_TOKEN }}
